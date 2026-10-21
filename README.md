@@ -1,56 +1,133 @@
-# Welcome to your Expo app 👋
+# AI Chef Marketplace
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A full-stack mobile application built with React Native, Expo, TypeScript, Node.js, Express, PostgreSQL, Socket.IO, and local AI integration.
 
-## Get started
+This project is a learning and portfolio project focused on practical full-stack development and production-oriented tools.
+## Tech Stack
 
-1. Install dependencies
+### Frontend
+- React Native
+- Expo and Expo Router
+- TypeScript
+- Redux Toolkit
 
-   ```bash
-   npm install
-   ```
+### Backend
+- Node.js
+- Express.js
+- TypeScript
+- REST APIs
+- JWT authentication
+- bcrypt password hashing
+- Socket.IO
 
-2. Start the app
+### Data Storage and AI
+- PostgreSQL — backend chef data and orders
+- Firebase — Popular Chefs data
+- Ollama — local AI-powered recipe suggestions
 
-   ```bash
-   npx expo start
-   ```
+### Development Tools
+- Git and GitHub
+- Docker
+- Postman
 
-In the output, you'll find options to open the app in a
+## Features
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Chef list retrieved from the Node.js REST API
+- Popular Chefs list retrieved from Firebase
+- Shopping cart using Redux Toolkit
+- Order creation
+- User registration and login
+- JWT-protected API endpoints
+- AI-powered recipe suggestions using Ollama
+- Real-time communication using Socket.IO
+- Backend and database health checks
+- Dockerized Node.js backend
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Project Structure
 
-## Get a fresh project
+- `src/app/` — application screens and routes
+- `src/components/` — reusable UI components
+- `src/constants/` — shared constants
+- `src/hooks/` — reusable React hooks
+- `src/services/` — API and Firebase integrations
+- `src/store/` — Redux Toolkit state management
+- `assets/` — application icons and images
+- `ai-chef-backend/` — Express APIs, authentication, PostgreSQL integration, AI routes and Docker configuration
+- `scripts/` — project utility scripts
 
-When you're ready, run:
+
+
+
+
+
+## Prerequisites
+
+- Node.js and npm
+- Expo-compatible development environment
+- Docker Desktop
+- PostgreSQL
+- Ollama with a compatible model
+
+## Run the Frontend
+
+From the project root:
 
 ```bash
-npm run reset-project
+npm ci
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Open the app using the iOS simulator or another supported Expo development environment.
 
-### Other setup steps
+## Run the Backend with Docker
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Navigate to the backend directory:
 
-## Learn more
+```bash
+cd ai-chef-backend
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Build the Docker image:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+docker build -t ai-chef-backend .
+```
 
-## Join the community
+Create your backend `.env` file using the required environment variables. Do not commit secrets to Git.
 
-Join our community of developers creating universal apps.
+Run the container:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+docker run -d \
+  --name ai-chef-backend-container \
+  -p 3000:3000 \
+  --env-file .env \
+  -e DB_HOST=host.docker.internal \
+  -e OLLAMA_URL=http://host.docker.internal:11434 \
+  --restart unless-stopped \
+  ai-chef-backend
+```
+
+This example assumes PostgreSQL and Ollama are running on the host Mac. Configure the database credentials, JWT secret, Ollama model, and other required environment variables before starting the container.
+
+## Health Checks
+
+Check whether the backend is running:
+
+`GET http://localhost:3000/health`
+
+Check the database connection:
+
+`GET http://localhost:3000/health/db`
+
+## Important Notes
+
+- Install frontend dependencies separately from backend dependencies.
+- The backend Docker image does not include the PostgreSQL database or Ollama model.
+- Configure environment variables for your own development machine.
+- Never commit `.env` files, passwords, JWT secrets, or API credentials.
+- The frontend API URL must point to the backend address accessible from the simulator or device.
+
+## Project Purpose
+
+This project demonstrates practical skills in mobile development, backend API design, authentication, database integration, real-time communication, local AI integration, and Docker-based backend execution.

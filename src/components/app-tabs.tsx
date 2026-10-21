@@ -27,6 +27,14 @@ export default function AppTabs() {
           renderingMode="template"
         />
       </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="ai-chef">
+        <NativeTabs.Trigger.Label>AI Chef</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf="sparkles"
+        />
+      </NativeTabs.Trigger>
+
     </NativeTabs>
   );
 }

@@ -1,18 +1,28 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
-
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
-
-SplashScreen.preventAutoHideAsync();
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+import { Stack } from "expo-router";
+import { Provider } from "react-redux";
+import { store } from "../store/store";
+export default function RootLayout() {
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+      <Provider store={store}>
+    <Stack>
+      <Stack.Screen
+        name="(tabs)"
+        options={{ headerShown: false , title: "",}}
+      />
+
+      <Stack.Screen
+        name="chef-details"
+        options={{ title: "Chef Details" , headerBackButtonDisplayMode: "minimal",}}
+      />
+      <Stack.Screen
+        name="food-details"
+        options={{ title: "Food Details" , headerBackButtonDisplayMode: "minimal",}}
+      />
+      <Stack.Screen
+        name="cart"
+        options={{ title: "Cart" , headerBackButtonDisplayMode: "minimal",}}
+      />
+    </Stack>
+    </Provider>
   );
 }

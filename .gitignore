@@ -36,8 +36,16 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
-example
+
 
 # generated native folders
 /ios
 /android
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+ai-chef-backend/.env
+ai-chef-backend/.env.*
+!ai-chef-backend/.env.example
