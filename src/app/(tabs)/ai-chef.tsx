@@ -1,22 +1,22 @@
 
+import { router } from "expo-router";
 import { useState } from "react";
 import {
-    ActivityIndicator,
-    Button,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  ActivityIndicator,
+  Button,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import { getRecipeSuggestions } from "../../services/aiApi";
-
 export default function AIChefScreen() {
   const [ingredients, setIngredients] = useState("");
   const [suggestions, setSuggestions] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-const [token, setToken] = useState("");
+  const [token, setToken] = useState("");
   async function handleGetSuggestions() {
     if (!ingredients.trim()) {
       setError("Please enter your ingredients.");
@@ -28,21 +28,22 @@ const [token, setToken] = useState("");
     setSuggestions("");
 
     try {
-        if (!token.trim()) {
-  setError("Please enter your login token.");
-  return;
-}
-
-const result = await getRecipeSuggestions(ingredients, token.trim());
-    //  const result = await getRecipeSuggestions(ingredients);
+      const result = await getRecipeSuggestions(ingredients);
       setSuggestions(result);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Unable to get recipe suggestions."
-      );
-    } finally {
+
+} catch (err) {
+  if (err instanceof Error && err.message === "SESSION_EXPIRED") {
+    router.replace("/login");
+    return;
+  }
+
+  setError(
+    err instanceof Error
+      ? err.message
+      : "Unable to get recipe suggestions."
+  );
+} finally {
+
       setLoading(false);
     }
   }
@@ -64,16 +65,6 @@ const result = await getRecipeSuggestions(ingredients, token.trim());
         onChangeText={setIngredients}
         multiline
       />
-<TextInput
-  style={styles.input}
-  placeholder="Paste your JWT login token"
-  value={token}
-  onChangeText={setToken}
-  autoCapitalize="none"
-  autoCorrect={false}
-  multiline
-  secureTextEntry={false}
-/>
       <Button
         title={loading ? "Getting suggestions..." : "Suggest Recipes"}
         onPress={handleGetSuggestions}

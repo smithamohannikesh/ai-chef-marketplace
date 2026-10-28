@@ -25,7 +25,13 @@ router.post("/register", async (req, res) => {
         }
         const normalizedName = name.trim();
         const normalizedEmail = email.trim().toLowerCase();
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+if (!emailPattern.test(normalizedEmail)) {
+  return res.status(400).json({
+    message: "Please enter a valid email address",
+  });
+}
         if (normalizedName.length > 100 || normalizedEmail.length > 255) {
 
             return res.status(400).json({
@@ -96,7 +102,7 @@ router.post("/register", async (req, res) => {
     }
 
 });
-export default router;
+
 //login endpoint
 router.post("/login", async (req, res) => {
     try {
@@ -135,11 +141,17 @@ router.post("/login", async (req, res) => {
             { expiresIn: "1h" }
 
         );
+        const refreshToken = jwt.sign(
+    { userId: user.id, type: "refresh" },
+    secret,
+    { expiresIn: "7d" }
+);
         return res.status(200).json({
 
             message: "Login successful",
 
             token,
+            refreshToken,
 
             user: {
 
@@ -168,3 +180,50 @@ router.post("/login", async (req, res) => {
 }
 
 )
+router.post("/refresh", (req, res) => {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+        return res.status(401).json({
+            message: "Refresh token is required",
+        });
+    }
+
+    const secret = process.env.JWT_SECRET;
+
+    if (!secret) {
+        return res.status(500).json({
+            message: "Authentication is not configured",
+        });
+    }
+
+    try {
+        const decoded = jwt.verify(refreshToken, secret);
+
+        if (
+            typeof decoded === "string" ||
+            !("userId" in decoded) ||
+            decoded.type !== "refresh"
+        ) {
+            return res.status(401).json({
+                message: "Invalid refresh token",
+            });
+        }
+
+        const token = jwt.sign(
+            { userId: decoded.userId },
+            secret,
+            { expiresIn: "1h" }
+        );
+
+        return res.status(200).json({
+            message: "Access token refreshed successfully",
+            token,
+        });
+    } catch (error) {
+        return res.status(401).json({
+            message: "Invalid or expired refresh token",
+        });
+    }
+});
+export default router;

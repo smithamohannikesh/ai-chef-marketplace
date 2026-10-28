@@ -1,4 +1,5 @@
 import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Button, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSelector } from "react-redux";
@@ -36,40 +37,49 @@ export default function HomeScreen() {
       console.log("NODE API CHEFS:", data);
     } catch (error) {
       console.error("NODE API ERROR:", error);
-      setApiError("Failed to fetch chefs from Node.js API");
+      if (error instanceof Error && error.message === "SESSION_EXPIRED") {
+        router.replace("/login");
+        return;
+      }
+
+      setApiError(
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch chefs from Node.js API"
+      );
     } finally {
       setApiLoading(false);
     }
   };
-  useEffect(()=>{
+  useEffect(() => {
     testNodeApi();
-  },[]  );
-//web socket for realtime
-useEffect(()=>{
-  chefSocket.connect();
-  chefSocket.on("chefUpdate",(data)=>{
-    console.log("realtime chef update:",data);
-    setApichefs(data);
-  });
-  chefSocket.on("connect",()=>{
-    console.log("Connected to Socket.IO server",chefSocket.id);
-  });
-  chefSocket.on("connect_error",(error)=>{
-    console.error("Socket.IO connection error:",error.message);
-  });
-  return()=>{
-    chefSocket.off("connect");
-    chefSocket.off("chefUpdate");
-    chefSocket.off("connect_error");
-    chefSocket.disconnect();
-  };
+  }, []);
+  //web socket for realtime
+  useEffect(() => {
+    chefSocket.connect();
+    chefSocket.on("chefUpdate", (data) => {
+      console.log("realtime chef update:", data);
+      setApichefs(data);
+    });
+    chefSocket.on("connect", () => {
+      console.log("Connected to Socket.IO server", chefSocket.id);
+    });
+    chefSocket.on("connect_error", (error) => {
+      console.error("Socket.IO connection error:", error.message);
+    });
+    return () => {
+      chefSocket.off("connect");
+      chefSocket.off("chefUpdate");
+      chefSocket.off("connect_error");
+      chefSocket.disconnect();
+    };
 
-},[]);
+  }, []);
 
 
-//Loads chefs when Home opens.
-//Updates the list automatically when Firebase data changes.
-//Stops listening when you leave the screen, helping prevent unnecessary subscriptions.
+  //Loads chefs when Home opens.
+  //Updates the list automatically when Firebase data changes.
+  //Stops listening when you leave the screen, helping prevent unnecessary subscriptions.
 
 
   useEffect(() => {
@@ -77,7 +87,7 @@ useEffect(()=>{
 
     const unsubscribe = listenToChefs(
       (data) => {
-        console.log("FIRBASE CHEF RECEIVED",data);
+        console.log("FIRBASE CHEF RECEIVED", data);
         setChefs(data);
         setLoading(false);
       },
@@ -86,11 +96,11 @@ useEffect(()=>{
       //   setLoading(false);
       // }
       (error) => {
-  console.error("Failed to listen to chefs:", error);
-  console.error("Firebase error code:", error.code);
-  console.error("Firebase error message:", error.message);
-  setLoading(false);
-}
+        console.error("Failed to listen to chefs:", error);
+        console.error("Firebase error code:", error.code);
+        console.error("Firebase error message:", error.message);
+        setLoading(false);
+      }
     );
 
     return () => unsubscribe();
@@ -130,6 +140,16 @@ useEffect(()=>{
                 🛒 Cart ({cartCount})
               </Text>
             </Pressable>
+            <Pressable
+              onPress={async () => {
+                await SecureStore.deleteItemAsync("accessToken");
+                await SecureStore.deleteItemAsync("refreshToken");
+                router.replace("/login");
+              }}
+              style={styles.cartButton}
+            >
+              <Text style={styles.cartText}>Logout</Text>
+            </Pressable>
           </View>
           <Text style={styles.title}>What are you craving today?</Text>
         </View>
@@ -144,7 +164,7 @@ useEffect(()=>{
         Chefs from Node.js API
       </Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-{/* {apiLoading ? (
+        {/* {apiLoading ? (
   <ActivityIndicator size="large" color="#FF6B35" />
 ) : apiError ? (
   <Text>{apiError}</Text>
@@ -177,32 +197,32 @@ useEffect(()=>{
 )}  */}
 
 
-{apiLoading ? (
-  <ActivityIndicator size="large" color="#FF6B35" />
-) : apiError ? (
-  <View>
-    <Text>{apiError}</Text>
-    <Button
-      title="Retry"
-      onPress={testNodeApi}
-    />
-  </View>
-) : apiChefs.length === 0 ? (
-  <Text>No chefs available.</Text>
-) : (
-  apiChefs.map((chef) => (
-    <ChefCard
-      key={chef.id}
-      name={chef.name}
-      specialty={chef.specialty}
-      image={
-        chefImages[chef.image] ??
-        require("../../../assets/images/chef1.jpg")
-      }
-      onPress={() => {}}
-    />
-  ))
-)}
+        {apiLoading ? (
+          <ActivityIndicator size="large" color="#FF6B35" />
+        ) : apiError ? (
+          <View>
+            <Text>{apiError}</Text>
+            <Button
+              title="Retry"
+              onPress={testNodeApi}
+            />
+          </View>
+        ) : apiChefs.length === 0 ? (
+          <Text>No chefs available.</Text>
+        ) : (
+          apiChefs.map((chef) => (
+            <ChefCard
+              key={chef.id}
+              name={chef.name}
+              specialty={chef.specialty}
+              image={
+                chefImages[chef.image] ??
+                require("../../../assets/images/chef1.jpg")
+              }
+              onPress={() => { }}
+            />
+          ))
+        )}
 
 
 

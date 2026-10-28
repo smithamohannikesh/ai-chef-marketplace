@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { pool } from "../db";
 import { broadcastChefUpdate } from "../socket";
+import { authenticateToken } from "./middleware/authMiddlewate";
 const router =Router();
-router.get("/", async (req, res) => {
+router.get("/", authenticateToken,async (req, res) => {
     try {
         const result = await pool.query("SELECT * FROM chefs");
         return res.status(200).json(result.rows);

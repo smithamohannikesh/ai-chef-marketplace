@@ -6,6 +6,10 @@ export default function RootLayout() {
       <Provider store={store}>
     <Stack>
       <Stack.Screen
+          name="login"
+          options={{ headerShown: false }}
+        />
+      <Stack.Screen
         name="(tabs)"
         options={{ headerShown: false , title: "",}}
       />
@@ -22,6 +26,15 @@ export default function RootLayout() {
         name="cart"
         options={{ title: "Cart" , headerBackButtonDisplayMode: "minimal",}}
       />
+
+<Stack.Screen
+  name="register"
+  options={{
+    title: "Create Account",
+    headerBackButtonDisplayMode: "minimal",
+  }}
+/>
+
     </Stack>
     </Provider>
   );

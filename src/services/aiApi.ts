@@ -1,15 +1,13 @@
 
 const API_URL = "http://localhost:3000";
-
+import { authenticatedFetch } from "./api";
 export async function getRecipeSuggestions(
   ingredients: string,
-  token: string
 ): Promise<string> {
-  const response = await fetch(`${API_URL}/ai/suggest`, {
+  const response = await authenticatedFetch("/ai/suggest", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ ingredients }),
   });

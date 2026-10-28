@@ -17,8 +17,11 @@ const foodImages = {
 const dispatch = useDispatch();
   return (
     <View style={styles.container}>
-        <Image
-  source={foodImages[image as keyof typeof foodImages]}
+ <Image
+  source={
+    foodImages[image as keyof typeof foodImages] ??
+    foodImages.food1
+  }
   style={styles.image}
 />
       <Text style={styles.title}>{name}</Text>
