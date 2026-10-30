@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 
 export default function Index() {
+  console.log("ROOT INDEX SCREEN RENDERED");
   const [destination, setDestination] = useState<
     "/login" | "/(tabs)" | null
   >(null);
@@ -12,6 +13,9 @@ export default function Index() {
   useEffect(() => {
     async function checkLogin() {
       const token = await SecureStore.getItemAsync("accessToken");
+       console.log("ROOT INDEX: checking saved token");
+    console.log("ROOT INDEX: access token exists:", Boolean(token));
+
       setDestination(token ? "/(tabs)" : "/login");
     }
 

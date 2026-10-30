@@ -32,6 +32,7 @@ export default function HomeScreen() {
     setApiLoading(true);
     setApiError(null);
     try {
+      console.log("Home screen loaded: checking saved session");
       const data = await fetchChefsFromApi();
       setApichefs(data);
       console.log("NODE API CHEFS:", data);
@@ -219,7 +220,16 @@ export default function HomeScreen() {
                 chefImages[chef.image] ??
                 require("../../../assets/images/chef1.jpg")
               }
-              onPress={() => { }}
+
+              onPress={() => {
+                router.push({
+                  pathname: "/chef-details",
+                  params: {
+                    id: chef.id,
+                  },
+                });
+              }}
+
             />
           ))
         )}
@@ -249,15 +259,7 @@ export default function HomeScreen() {
               //image={chefImages[chef.image]}
               image={chefImages[chef.image] ?? require("../../../assets/images/chef1.jpg")}
               onPress={() => {
-                router.push({
-                  pathname: "/chef-details",
-                  params: {
-                    name: chef.name,
-                    image: chef.image,
-                    specialty: chef.specialty,
-                    details: chef.details,
-                  },
-                });
+
               }}
             />
           ))

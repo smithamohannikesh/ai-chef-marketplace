@@ -1,14 +1,20 @@
 
 import * as SecureStore from "expo-secure-store";
 
-const API_URL = "http://localhost:3000";
+import { Platform } from "react-native";
+
+const API_URL =
+  Platform.OS === "android"
+    ? "http://10.0.2.2:3000"
+    : "http://localhost:3000";
 
 export async function authenticatedFetch(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<Response> {
-  let token = await SecureStore.getItemAsync("accessToken");
 
+  let token = await SecureStore.getItemAsync("accessToken");
+console.log("Access token exists:", Boolean(token));
   const makeRequest = (accessToken: string | null) =>
     fetch(`${API_URL}${endpoint}`, {
       ...options,
@@ -27,7 +33,7 @@ export async function authenticatedFetch(
   }
 
   const refreshToken = await SecureStore.getItemAsync("refreshToken");
-
+console.log("Refresh token exists:", Boolean(refreshToken));
   if (!refreshToken) {
     await SecureStore.deleteItemAsync("accessToken");
   await SecureStore.deleteItemAsync("refreshToken");
