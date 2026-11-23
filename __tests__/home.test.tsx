@@ -4,6 +4,7 @@ import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import HomeScreen from "../src/app/(tabs)/index";
 import { fetchChefsFromApi } from "../src/services/chefApi";
+import { fetchFoodsFromApi } from "../src/services/foodApi";
 jest.mock("expo-router", () => ({
   router: {
     push: jest.fn(),
@@ -22,6 +23,10 @@ jest.mock("react-redux", () => ({
 
 jest.mock("../src/services/chefApi", () => ({
   fetchChefsFromApi: jest.fn(() => Promise.resolve([])),
+}));
+
+jest.mock("../src/services/foodApi", () => ({
+  fetchFoodsFromApi: jest.fn(() => Promise.resolve([])),
 }));
 
 jest.mock("../src/services/chefservice", () => ({
@@ -44,7 +49,17 @@ jest.mock("../src/components/ChefCard", () => {
   return ({ name }: { name: string }) =>
     React.createElement(Text, null, name);
 });
-jest.mock("../src/components/FoodCard", () => () => null);
+jest.mock("../src/components/FoodCard", () => {
+  const React = require("react");
+  const { Pressable, Text } = require("react-native");
+
+  return ({ name, onPress }: { name: string; onPress: () => void }) =>
+    React.createElement(
+      Pressable,
+      { onPress },
+      React.createElement(Text, null, name)
+    );
+});
 
 describe("Home Screen", () => {
   beforeEach(() => {
@@ -81,6 +96,62 @@ describe("Home Screen", () => {
   const screen = await  render(<HomeScreen />);
 
   expect(await screen.findByText("Test Chef")).toBeTruthy();
+});
+test("should display foods returned by the foods API", async () => {
+  (fetchFoodsFromApi as jest.Mock).mockResolvedValue([
+    {
+      id: 1,
+      chef_id: "chef2",
+      chef_name: "Test Chef",
+      name: "Chicken noodles",
+      description: "Noodles with chicken",
+      price: "20.00",
+      image_key: "food1",
+      is_available: true,
+    },
+  ]);
+
+  const screen = await render(<HomeScreen />);
+
+  expect(await screen.findByText("Chicken noodles")).toBeTruthy();
+  expect(fetchFoodsFromApi).toHaveBeenCalledTimes(1);
+  fireEvent.press(screen.getByText("Chicken noodles"));
+  expect(router.push).toHaveBeenCalledWith({
+    pathname: "/food-details",
+    params: {
+      foodId: "1",
+      name: "Chicken noodles",
+      description: "Noodles with chicken",
+      image: "food1",
+      price: "20.00",
+    },
+  });
+});
+test("should display an error and allow retry when foods API fails", async () => {
+  (fetchFoodsFromApi as jest.Mock)
+    .mockRejectedValueOnce(new Error("Foods API unavailable"))
+    .mockResolvedValueOnce([]);
+
+  const screen = await render(<HomeScreen />);
+
+  expect(await screen.findByText("Foods API unavailable")).toBeTruthy();
+  fireEvent.press(screen.getByText("Retry foods"));
+
+  await waitFor(() => {
+    expect(fetchFoodsFromApi).toHaveBeenCalledTimes(2);
+    expect(screen.getByText("No foods available.")).toBeTruthy();
+  });
+});
+test("redirects to login when the foods request reports an expired session", async () => {
+  (fetchFoodsFromApi as jest.Mock).mockRejectedValue(
+    new Error("SESSION_EXPIRED")
+  );
+
+  await render(<HomeScreen />);
+
+  await waitFor(() => {
+    expect(router.replace).toHaveBeenCalledWith("/login");
+  });
 });
 test("should display an error when the Node.js API fails", async () => {
   (fetchChefsFromApi as jest.Mock).mockRejectedValue(

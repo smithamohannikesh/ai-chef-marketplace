@@ -40,7 +40,7 @@ router.get("/:id", authenticateToken, async (req, res) => {
     }
 });
 
-router.post("/", async (req, res) => {
+router.post("/",authenticateToken, async (req, res) => {
 
      if (typeof req.body != "object" || req.body == null || Array.isArray(req.body)) {
         return res.status(400).json({
@@ -103,7 +103,7 @@ router.post("/", async (req, res) => {
         });
     }
 })
-router.put("/:id", async (req, res) => {
+router.put("/:id", authenticateToken, async (req, res) => {
     try {
          if (
             typeof req.body !== "object" ||
@@ -177,7 +177,7 @@ router.put("/:id", async (req, res) => {
         });
     }
 });
-router.patch("/:id", async (req, res) => {
+router.patch("/:id", authenticateToken, async (req, res) => {
     try {
           if (
             typeof req.body !== "object" ||
@@ -262,7 +262,7 @@ router.patch("/:id", async (req, res) => {
         });
     }
 });
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authenticateToken, async (req, res) => {
     try {
         const chefId = req.params.id;
 

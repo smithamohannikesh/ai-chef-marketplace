@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Button, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useSelector } from "react-redux";
 import ChefCard from "../../components/ChefCard";
@@ -9,12 +9,18 @@ import { fetchChefsFromApi } from "../../services/chefApi";
 import { listenToChefs } from "../../services/chefservice";
 import { chefSocket } from "../../services/chefSocket";
 import { Chef } from "../../services/chefTypes";
+import type { Food } from "../../services/foodApi";
+import { fetchFoodsFromApi } from "../../services/foodApi";
 export default function HomeScreen() {
   const [chefs, setChefs] = useState<Chef[]>([]);
   const [apiChefs, setApichefs] = useState<Chef[]>([]);
   const [loading, setLoading] = useState(true);
   const [apiLoading, setApiLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [foods, setFoods] = useState<Food[]>([]);
+  const [foodsLoading, setFoodsLoading] = useState(true);
+  const [foodsError, setFoodsError] = useState<string | null>(null);
+  const foodsRequestActive = useRef(true);
   const cartItems = useSelector(
     (state: any) => state.cart.items
   );
@@ -27,6 +33,11 @@ export default function HomeScreen() {
     chef1: require("../../../assets/images/chef1.jpg"),
     chef2: require("../../../assets/images/chef2.jpg"),
     chef3: require("../../../assets/images/chef3.jpg"),
+  };
+  const foodImages: Record<string, any> = {
+    food1: require("../../../assets/images/food1.jpg"),
+    food2: require("../../../assets/images/food2.jpg"),
+    food3: require("../../../assets/images/food3.jpg"),
   };
   const testNodeApi = async () => {
     setApiLoading(true);
@@ -55,6 +66,42 @@ export default function HomeScreen() {
   useEffect(() => {
     testNodeApi();
   }, []);
+  const loadFoods = useCallback(async () => {
+    setFoodsLoading(true);
+    setFoodsError(null);
+
+    try {
+      const data = await fetchFoodsFromApi();
+      if (foodsRequestActive.current) {
+        setFoods(data);
+      }
+      console.log("food==",data)
+    } catch (error) {
+      if (!foodsRequestActive.current) return;
+
+      if (error instanceof Error && error.message === "SESSION_EXPIRED") {
+        router.replace("/login");
+        return;
+      }
+
+      setFoodsError(
+        error instanceof Error ? error.message : "Failed to fetch foods"
+      );
+    } finally {
+      if (foodsRequestActive.current) {
+        setFoodsLoading(false);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    foodsRequestActive.current = true;
+    void loadFoods();
+
+    return () => {
+      foodsRequestActive.current = false;
+    };
+  }, [loadFoods]);
   //web socket for realtime
   useEffect(() => {
     chefSocket.connect();
@@ -270,73 +317,40 @@ export default function HomeScreen() {
         <Text style={styles.sectionTitle}>Recommended for You</Text>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <FoodCard
-            name="Chicken noodles"
-            description="Rich Italian flavors "
-            image={require("../../../assets/images/food1.jpg")}
-            onPress={() => {
-              router.push({
-
-                pathname: "/food-details",
-
-                params: {
-
-                  name: "Chicken noodles ",
-                  description: "Rich Italian flavors",
-                  image: "food1",
-                  price: "20",
-
-                },
-
-              })
-            }}
-          />
-
-          <FoodCard
-            name="crispy fried croquettes "
-            description="Healthy and delicious"
-            image={require("../../../assets/images/food2.jpg")}
-            onPress={() => {
-
-              router.push({
-
-                pathname: "/food-details",
-
-                params: {
-
-                  name: "crispy fried croquettes ",
-                  description: "Healthy and delicious",
-                  image: "food2",
-                  price: "25",
-
-                },
-
-              })
-            }}
-          />
-
-          <FoodCard
-            name="waffle ice cream sandwich"
-            description="flavorful"
-            image={require("../../../assets/images/food3.jpg")}
-            onPress={() => {
-
-              router.push({
-
-                pathname: "/food-details",
-
-                params: {
-
-                  name: "waffle ice cream sandwich ",
-                  description: "flavorful",
-                  image: "food3",
-                  price: "35",
-
-                },
-
-              })
-            }}
-          />
+          {foodsLoading ? (
+            <ActivityIndicator size="large" color="#FF6B35" />
+          ) : foodsError ? (
+            <View>
+              <Text>{foodsError}</Text>
+              <Button title="Retry foods" onPress={() => void loadFoods()} />
+            </View>
+          ) : foods.length === 0 ? (
+            <Text>No foods available.</Text>
+          ) : (
+            foods.map((food) => (
+              <FoodCard
+                key={food.id}
+                name={food.name}
+                description={food.description}
+                image={
+                  foodImages[food.image_key] ??
+                  require("../../../assets/images/food1.jpg")
+                }
+                onPress={() => {
+                  router.push({
+                    pathname: "/food-details",
+                    params: {
+                      foodId: String(food.id),
+                      name: food.name,
+                      description: food.description,
+                      image: food.image_key,
+                      price: String(food.price),
+                    },
+                  });
+                }}
+              />
+            ))
+          )}
         </ScrollView>
       </View>
       {/* <Text style={styles.sectionTitle}>Recommended for You</Text>

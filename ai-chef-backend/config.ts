@@ -17,4 +17,6 @@ export const config = {
   jwtSecret: process.env.JWT_SECRET!,
   ollamaUrl: process.env.OLLAMA_URL!,
   ollamaModel: process.env.OLLAMA_MODEL!,
+  ollamaEmbeddingModel:
+    process.env.OLLAMA_EMBEDDING_MODEL ?? "nomic-embed-text",
 };

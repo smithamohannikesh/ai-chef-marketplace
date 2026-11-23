@@ -3,7 +3,8 @@ import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../store/cartSlice";
 export default function FoodDetailsScreen() {
-  const { name, description, price,image } = useLocalSearchParams<{
+  const { foodId, name, description, price, image } = useLocalSearchParams<{
+    foodId: string;
     name: string;
     description: string;
     price: string;
@@ -18,6 +19,7 @@ const dispatch = useDispatch();
   return (
     <View style={styles.container}>
  <Image
+  testID="food-detail-image"
   source={
     foodImages[image as keyof typeof foodImages] ??
     foodImages.food1
@@ -34,7 +36,7 @@ const dispatch = useDispatch();
   onPress={() => {
   dispatch(
     addToCart({
-      id: image,
+      id: foodId,
       name,
       description,
       price: Number(price),

@@ -1,3 +1,5 @@
+import { authenticatedFetch } from "./api";
+
 const API_URL="http://localhost:3000";
 export type CreateOrderResponse ={
     id:number;
@@ -10,7 +12,8 @@ export async function createOrder(
     customerName:string,
     totalAmount:number
 ): Promise<CreateOrderResponse>{
-    const response = await fetch(`${API_URL}/orders`,{
+
+    const response = await authenticatedFetch("/orders",{
         method:"POST",
         headers:{
              "Content-Type": "application/json",
@@ -23,7 +26,9 @@ export async function createOrder(
 
     }),
     });
+   // const response = await authenticatedFetch("/orders");
     const data= await response.json();
+    console.log("ordercreted",data)
     if(!response.ok){
         throw new Error(data.message || "Failed to create order")
     }

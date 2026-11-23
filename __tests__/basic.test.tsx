@@ -9,6 +9,7 @@ jest.mock("expo-router", () => ({
     push: jest.fn(),
   },
   useLocalSearchParams: jest.fn(() => ({
+    foodId: "25",
     name: "Chicken Biryani",
     description: "Delicious chicken biryani",
     price: "25",
@@ -42,7 +43,7 @@ expect(rendered.getByText("Add to Cart")).toBeTruthy();
 
   fireEvent.press(rendered.getByText("Add to Cart"));
   expect(addToCart).toHaveBeenCalledWith({
-  id: "food1",
+  id: "25",
   name: "Chicken Biryani",
   description: "Delicious chicken biryani",
   price: 25,
@@ -51,8 +52,52 @@ expect(rendered.getByText("Add to Cart")).toBeTruthy();
 });
   expect(router.push).toHaveBeenCalledWith("/cart");
 });
+test("uses the database food ID as cart identity and keeps image key separately", async () => {
+  (useLocalSearchParams as jest.Mock).mockReturnValue({
+    foodId: "42",
+    name: "Chicken Biryani",
+    description: "Delicious chicken biryani",
+    price: "25",
+    image: "food2",
+  });
+
+  const rendered = await render(<FoodDetailsScreen />);
+  fireEvent.press(rendered.getByText("Add to Cart"));
+
+  expect(addToCart).toHaveBeenCalledWith({
+    id: "42",
+    name: "Chicken Biryani",
+    description: "Delicious chicken biryani",
+    price: 25,
+    image: "food2",
+    quantity: 1,
+  });
+  expect(rendered.getByTestId("food-detail-image").props.source).toBe(
+    require("../assets/images/food2.jpg")
+  );
+});
+test("uses separate database IDs for foods that share an image key", async () => {
+  (useLocalSearchParams as jest.Mock).mockReturnValue({
+    foodId: "43",
+    name: "Another Food",
+    description: "Shares an image",
+    price: "30",
+    image: "food2",
+  });
+
+  const rendered = await render(<FoodDetailsScreen />);
+  fireEvent.press(rendered.getByText("Add to Cart"));
+
+  expect(addToCart).toHaveBeenCalledWith(
+    expect.objectContaining({ id: "43", image: "food2" })
+  );
+  expect(rendered.getByTestId("food-detail-image").props.source).toBe(
+    require("../assets/images/food2.jpg")
+  );
+});
 test("should use fallback image when image parameter is invalid", async () => {
   (useLocalSearchParams as jest.Mock).mockReturnValue({
+    foodId: "25",
     name: "Chicken Biryani",
     description: "Delicious chicken biryani",
     price: "25",
@@ -66,6 +111,7 @@ test("should use fallback image when image parameter is invalid", async () => {
 });
 test("should render when food details are missing", async () => {
   (useLocalSearchParams as jest.Mock).mockReturnValue({
+    foodId: "25",
     image: "food1",
   });
 
