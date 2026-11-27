@@ -85,6 +85,17 @@ describe("Home Screen", () => {
       expect(router.replace).toHaveBeenCalledWith("/login");
     });
   });
+
+  test("opens the existing AI food search screen from the Home card", async () => {
+    const screen = await render(<HomeScreen />);
+
+    fireEvent.press(
+      screen.getByRole("button", { name: "Open AI Food Assistant" })
+    );
+
+    expect(router.push).toHaveBeenCalledWith("/ai-food-assistant");
+  });
+
   test("should display chefs returned by the Node.js API", async () => {
   (fetchChefsFromApi as jest.Mock).mockResolvedValue([
     {

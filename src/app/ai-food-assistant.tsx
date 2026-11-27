@@ -10,20 +10,20 @@ import {
   TextInput,
   View,
 } from "react-native";
-import FoodCard from "../../components/FoodCard";
+import FoodCard from "../components/FoodCard";
 import type {
   FoodSearchPage,
   FoodSearchResult,
-} from "../../services/foodSearchApi";
+} from "../services/foodSearchApi";
 import {
   fetchFoodSearchPageFromApi,
   searchFoodsFromApi,
-} from "../../services/foodSearchApi";
+} from "../services/foodSearchApi";
 
 const foodImages: Record<string, number> = {
-  food1: require("../../../assets/images/food1.jpg"),
-  food2: require("../../../assets/images/food2.jpg"),
-  food3: require("../../../assets/images/food3.jpg"),
+  food1: require("../../assets/images/food1.jpg"),
+  food2: require("../../assets/images/food2.jpg"),
+  food3: require("../../assets/images/food3.jpg"),
 };
 
 export default function AIChefScreen() {
@@ -152,7 +152,7 @@ export default function AIChefScreen() {
             description={food.description}
             image={
               foodImages[food.image_key] ??
-              require("../../../assets/images/food1.jpg")
+              require("../../assets/images/food1.jpg")
             }
             chefName={food.chef_name}
             price={food.price}
@@ -177,7 +177,7 @@ export default function AIChefScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>AI Chef Assistant</Text>
+      <Text style={styles.title}>AI Food Assistant</Text>
       <Text style={styles.description}>
         Describe the food you are craving and discover matching dishes.
       </Text>

@@ -215,6 +215,6 @@ Screenshots are not included yet. Add current app screenshots here when availabl
 
 ## Author and purpose
 
-**Author:** [Your Name]
+**Author:** [SmithaMohan]
 
 **Purpose:** Portfolio project for demonstrating mobile and full-stack implementation, learning, and technical interview discussion.

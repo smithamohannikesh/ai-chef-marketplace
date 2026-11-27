@@ -368,13 +368,18 @@ export default function HomeScreen() {
           <Text style={styles.foodDetails}>High Protein • ⭐ 4.7</Text>
         </View>
       </View> */}
-      <View style={styles.aiBox}>
+      <Pressable
+        style={styles.aiBox}
+        onPress={() => router.push("/ai-food-assistant")}
+        accessibilityRole="button"
+        accessibilityLabel="Open AI Food Assistant"
+      >
         <Text style={styles.aiTitle}>🤖 AI Food Assistant</Text>
         <Text style={styles.aiText}>
           Not sure what to eat? Ask our AI assistant for personalized food
           recommendations.
         </Text>
-      </View>
+      </Pressable>
     </ScrollView>
   );
 }

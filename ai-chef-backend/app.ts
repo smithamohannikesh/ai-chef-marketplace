@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import { pool } from "./db";
+import aiChefV2Routes from "./aiChefV2/routes/aiChefV2Routes";
 import aiRoutes from "./routes/aiRoutes";
 import authRoutes from "./routes/authRoutes";
 import chefRoutes from "./routes/chefRoutes";
@@ -24,6 +25,7 @@ app.get("/health", (req, res) => {
 
 app.use("/auth", authRoutes);
 app.use("/ai", aiRoutes);
+app.use("/ai-chef-v2", aiChefV2Routes);
 app.use("/foods", foodRoutes);
 app.use("/media", mediaRoutes);
 

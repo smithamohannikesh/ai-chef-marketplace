@@ -44,6 +44,10 @@ export default function RootLayout() {
         options={{ title: "Food Details" , headerBackButtonDisplayMode: "minimal",}}
       />
       <Stack.Screen
+        name="ai-food-assistant"
+        options={{ title: "AI Food Assistant", headerBackButtonDisplayMode: "minimal" }}
+      />
+      <Stack.Screen
         name="cart"
         options={{ title: "Cart" , headerBackButtonDisplayMode: "minimal",}}
       />

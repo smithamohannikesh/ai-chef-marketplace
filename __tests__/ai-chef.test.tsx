@@ -1,6 +1,6 @@
 import { render, userEvent, waitFor } from "@testing-library/react-native";
 import { router } from "expo-router";
-import AIChefScreen from "../src/app/(tabs)/ai-chef";
+import AIChefScreen from "../src/app/ai-food-assistant";
 import {
   fetchFoodSearchPageFromApi,
   FoodSearchResponse,
@@ -79,7 +79,7 @@ async function enterQueryAndSearch(
   await user.press(screen.getByText("Search Foods"));
 }
 
-describe("AI Chef food search screen", () => {
+describe("AI Food Assistant screen", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });

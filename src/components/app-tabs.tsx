@@ -28,7 +28,10 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="ai-chef">
+      <NativeTabs.Trigger
+        name="ai-chef-v2"
+        disableTransparentOnScrollEdge
+      >
         <NativeTabs.Trigger.Label>AI Chef</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
           sf="sparkles"
